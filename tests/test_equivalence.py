@@ -28,9 +28,6 @@ import os
 from pathlib import Path
 
 import numpy as np
-import torch
-
-torch.set_num_threads(2)
 
 try:
     import pytest
@@ -46,6 +43,15 @@ except ImportError:                      # standalone runner without pytest
 
     def _skip(msg: str):
         raise _SkipProbe(msg)
+
+try:
+    import torch
+except ImportError:
+    if pytest is not None:               # collection in a torch-free env
+        pytest.skip("torch not installed", allow_module_level=True)
+    raise
+
+torch.set_num_threads(2)
 
 REFS_DIR = Path(__file__).parent / "references"
 REF_MAB = json.load(open(REFS_DIR / "mab.json"))

@@ -14,7 +14,7 @@ reference fields and the other variables hold equal RELATIVE precision,
 sigma_var = 0.2 * std_var / std_temp with the 4-decimal field-std literals
 (std_temp 5.1723 degC, std_salt 3.6912 psu), giving
     SST  0.2 degC          (R = 0.04)
-    SSS  0.142729540049881 psu  (R = 0.0203717216028506)
+    SSS  0.14272954004988112 psu (R = 0.020371721602850616)
 
 RNG scheme (production formula, verbatim): the per-cycle observation draw uses
     numpy.random.default_rng(70000 + ic_key*1009 + cycle + rseed)

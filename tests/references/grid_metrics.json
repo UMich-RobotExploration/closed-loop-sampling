@@ -1,0 +1,7 @@
+{
+  "_provenance": "Per-axis grid metrics extracted from the production campaign dumps (the loop's own recorded values; derived from the stores' ROMS pm/pn via sampling.reachability.cell_metres). Vehicle constants as run.",
+  "mab": {"dx_col_m": 7004.1240234375, "dy_row_m": 6984.77392578125},
+  "ccs": {"dx_col_m": 8691.78125, "dy_row_m": 11113.283203125},
+  "v_auv_ms": 1.5,
+  "reach_window_s": 21600
+}

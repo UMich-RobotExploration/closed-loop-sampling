@@ -29,7 +29,8 @@ from closedloop_sampling.sampling.acquisition import a_optimal_score, d_optimal_
 _SCORERS = {"a_optimal": a_optimal_score, "d_optimal": d_optimal_score}
 
 
-def select_locations(Xp, cand_field, feas, R, n_fleet, criterion="a_optimal"):
+def select_locations(Xp, cand_field, feas, R, n_fleet, criterion="a_optimal",
+                     return_anomalies=False):
     """Greedy assignment of n_fleet vehicles to candidate cells.
 
     Xp         : (n_field, N) target-field anomalies over the field of
@@ -43,7 +44,9 @@ def select_locations(Xp, cand_field, feas, R, n_fleet, criterion="a_optimal"):
 
     Returns dict: chosen (list of (vehicle, field_index)), chosen_field
     (array of field indices), score_at_place (marginal score credited at each
-    placement — a u_A value for a_optimal, a variance for d_optimal).
+    placement — a u_A value for a_optimal, a variance for d_optimal); with
+    return_anomalies=True, also conditioned_anomalies (the final planning
+    copy Xw, for parity tests and diagnostics).
     """
     score_fn = _SCORERS[criterion]
     N = Xp.shape[1]
@@ -90,6 +93,9 @@ def select_locations(Xp, cand_field, feas, R, n_fleet, criterion="a_optimal"):
         alpha = 1.0 / (1.0 + np.sqrt(R / d))
         Xw -= alpha * np.outer(K, xj)
 
-    return dict(chosen=chosen,
-                chosen_field=np.array([j for _, j in chosen], int),
-                score_at_place=score_at_place)
+    out = dict(chosen=chosen,
+               chosen_field=np.array([j for _, j in chosen], int),
+               score_at_place=score_at_place)
+    if return_anomalies:
+        out["conditioned_anomalies"] = Xw
+    return out

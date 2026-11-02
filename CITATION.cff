@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the paper below."
+title: "closed-loop-sampling"
+authors:
+  - family-names: Hafezi
+    given-names: Shayesteh
+  - family-names: Papalia
+    given-names: Alan
+year: 2026
+preferred-citation:
+  type: conference-paper
+  title: "Closed-Loop Adaptive Sampling on a Generative Ocean Model"
+  authors:
+    - family-names: Hafezi
+      given-names: Shayesteh
+    - family-names: Papalia
+      given-names: Alan
+  year: 2026
+  conference:
+    name: "IEEE International Conference on Robotics and Automation (ICRA)"

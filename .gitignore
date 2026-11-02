@@ -1,0 +1,14 @@
+third_party/
+results/out/
+*.zarr
+*.pt
+*.safetensors
+*.npz
+*.nc
+logs/
+wandb/
+__pycache__/
+*.pyc
+*.egg-info/
+.venv*/
+.pytest_cache/

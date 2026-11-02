@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "closedloop_sampling"
+version = "0.1.0"
+description = "Closed-loop adaptive sampling on a generative ocean model: forecast ensemble, acquisition scores, reachability, guided analysis update"
+authors = [{ name = "Shayesteh Hafezi", email = "shafezi@umich.edu" }]
+license = { text = "MIT" }
+requires-python = ">=3.11"
+# Pins mirror the production environment the released checkpoints were trained
+# and verified under. The upstream `ladcast` dependency is fetched at setup
+# (tools/fetch_upstream.py) and installed with --no-deps; these pins cover
+# what it needs plus this package's own imports.
+dependencies = [
+    "torch==2.4.1",
+    "diffusers==0.32.1",
+    "accelerate==1.6.0",
+    "einops==0.8.2",
+    "zarr==3.1.6",
+    "xarray==2026.4.0",
+    "numpy==2.4.5",
+    "scipy==1.17.1",
+    "tqdm==4.67.3",
+    "pyyaml==6.0.3",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "weights: needs read access to the released production checkpoints",
+]

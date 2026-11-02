@@ -1,0 +1,258 @@
+{
+ "region": "doppio",
+ "criteria": "C1 verbatim in module docstring + design_notes/e2_preregistration.md",
+ "metric": "top10_over_median_var @144h, ensemble-only (truth-free)",
+ "covariates": "growth + corr_efold recorded, NOT selected on",
+ "candidates": [
+  {
+   "dt": "2022-08-02T12",
+   "conc": 1.995,
+   "gini": 0.1819,
+   "growth": 3.696,
+   "corr_efold_km": 108.5,
+   "season": "JJA"
+  },
+  {
+   "dt": "2023-08-19T12",
+   "conc": 2.1126,
+   "gini": 0.1824,
+   "growth": 3.785,
+   "corr_efold_km": 99.2,
+   "season": "JJA"
+  },
+  {
+   "dt": "2024-07-11T12",
+   "conc": 2.1351,
+   "gini": 0.1976,
+   "growth": 3.582,
+   "corr_efold_km": 122.4,
+   "season": "JJA"
+  },
+  {
+   "dt": "2024-09-24T12",
+   "conc": 2.3032,
+   "gini": 0.2139,
+   "growth": 4.121,
+   "corr_efold_km": 97.8,
+   "season": "SON"
+  },
+  {
+   "dt": "2024-08-01T12",
+   "conc": 2.3276,
+   "gini": 0.2018,
+   "growth": 3.634,
+   "corr_efold_km": 122.8,
+   "season": "JJA"
+  },
+  {
+   "dt": "2023-09-22T12",
+   "conc": 2.4565,
+   "gini": 0.206,
+   "growth": 4.488,
+   "corr_efold_km": 112.4,
+   "season": "SON"
+  },
+  {
+   "dt": "2022-11-02T12",
+   "conc": 2.6999,
+   "gini": 0.2239,
+   "growth": 4.91,
+   "corr_efold_km": 96.1,
+   "season": "SON"
+  },
+  {
+   "dt": "2022-12-29T12",
+   "conc": 2.864,
+   "gini": 0.2631,
+   "growth": 4.967,
+   "corr_efold_km": 72.1,
+   "season": "DJF"
+  },
+  {
+   "dt": "2022-05-27T12",
+   "conc": 2.9079,
+   "gini": 0.2397,
+   "growth": 4.841,
+   "corr_efold_km": 101.8,
+   "season": "MAM"
+  },
+  {
+   "dt": "2022-10-14T12",
+   "conc": 3.07,
+   "gini": 0.2172,
+   "growth": 4.11,
+   "corr_efold_km": 101.8,
+   "season": "SON"
+  },
+  {
+   "dt": "2024-06-03T12",
+   "conc": 3.13,
+   "gini": 0.2284,
+   "growth": 4.194,
+   "corr_efold_km": 94.4,
+   "season": "JJA"
+  },
+  {
+   "dt": "2022-12-13T12",
+   "conc": 3.3238,
+   "gini": 0.2794,
+   "growth": 4.763,
+   "corr_efold_km": 80.8,
+   "season": "DJF"
+  },
+  {
+   "dt": "2022-05-07T12",
+   "conc": 3.3929,
+   "gini": 0.2647,
+   "growth": 3.978,
+   "corr_efold_km": 88.3,
+   "season": "MAM"
+  },
+  {
+   "dt": "2023-04-29T12",
+   "conc": 3.3959,
+   "gini": 0.2684,
+   "growth": 4.108,
+   "corr_efold_km": 83.4,
+   "season": "MAM"
+  },
+  {
+   "dt": "2023-10-31T12",
+   "conc": 3.5901,
+   "gini": 0.2598,
+   "growth": 4.597,
+   "corr_efold_km": 93.1,
+   "season": "SON"
+  },
+  {
+   "dt": "2022-03-24T12",
+   "conc": 3.7206,
+   "gini": 0.3049,
+   "growth": 4.661,
+   "corr_efold_km": 83.7,
+   "season": "MAM"
+  },
+  {
+   "dt": "2023-04-03T12",
+   "conc": 3.9657,
+   "gini": 0.3147,
+   "growth": 5.316,
+   "corr_efold_km": 78.4,
+   "season": "MAM"
+  },
+  {
+   "dt": "2022-01-08T12",
+   "conc": 4.0715,
+   "gini": 0.3065,
+   "growth": 5.139,
+   "corr_efold_km": 81.6,
+   "season": "DJF"
+  },
+  {
+   "dt": "2022-02-25T12",
+   "conc": 4.1175,
+   "gini": 0.3179,
+   "growth": 4.425,
+   "corr_efold_km": 73.6,
+   "season": "DJF"
+  },
+  {
+   "dt": "2023-02-09T12",
+   "conc": 4.1882,
+   "gini": 0.3174,
+   "growth": 5.361,
+   "corr_efold_km": 73.6,
+   "season": "DJF"
+  },
+  {
+   "dt": "2024-04-23T12",
+   "conc": 4.2552,
+   "gini": 0.3159,
+   "growth": 4.247,
+   "corr_efold_km": 75.8,
+   "season": "MAM"
+  },
+  {
+   "dt": "2022-04-09T12",
+   "conc": 4.3312,
+   "gini": 0.3096,
+   "growth": 5.009,
+   "corr_efold_km": 80.5,
+   "season": "MAM"
+  },
+  {
+   "dt": "2023-02-25T12",
+   "conc": 4.469,
+   "gini": 0.3219,
+   "growth": 4.635,
+   "corr_efold_km": 70.0,
+   "season": "DJF"
+  },
+  {
+   "dt": "2023-03-11T12",
+   "conc": 4.4968,
+   "gini": 0.3414,
+   "growth": 4.775,
+   "corr_efold_km": 72.3,
+   "season": "MAM"
+  },
+  {
+   "dt": "2024-02-25T12",
+   "conc": 5.5376,
+   "gini": 0.3748,
+   "growth": 5.002,
+   "corr_efold_km": 80.3,
+   "season": "DJF"
+  },
+  {
+   "dt": "2024-01-07T12",
+   "conc": 5.5485,
+   "gini": 0.3536,
+   "growth": 4.567,
+   "corr_efold_km": 76.9,
+   "season": "DJF"
+  },
+  {
+   "dt": "2024-03-25T12",
+   "conc": 5.9305,
+   "gini": 0.3639,
+   "growth": 4.795,
+   "corr_efold_km": 80.1,
+   "season": "MAM"
+  }
+ ],
+ "tercile_bounds": [
+  2.9079,
+  4.0715
+ ],
+ "split": {
+  "low": 3,
+  "mid": 4,
+  "high": 3
+ },
+ "selection": [
+  "2022-01-08T12",
+  "2022-02-25T12",
+  "2022-04-09T12",
+  "2022-05-07T12",
+  "2022-08-02T12",
+  "2022-10-14T12",
+  "2022-11-02T12",
+  "2022-12-13T12",
+  "2023-03-11T12",
+  "2023-09-22T12"
+ ],
+ "canonical_order": [
+  "2022-08-02T12",
+  "2022-01-08T12",
+  "2022-02-25T12",
+  "2022-11-02T12",
+  "2022-05-07T12",
+  "2022-04-09T12",
+  "2023-09-22T12",
+  "2022-10-14T12",
+  "2023-03-11T12",
+  "2022-12-13T12"
+ ],
+ "subset_rules": "n=200 slices = first 5 of canonical order; shrinks remove from the END; salt slices use the full 10 (C1 s6)"
+}

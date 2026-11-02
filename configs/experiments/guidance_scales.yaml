@@ -1,0 +1,26 @@
+# Frozen guidance scales lambda_g per (region, variable, fleet size) — the
+# values the published campaigns ran, VERBATIM from the selection sweep's
+# records (every released run file also carries its scale). Selected on the
+# 15 tuning-year ICs per region (configs/experiments/ics/validation_*.json)
+# by experiments/select_guidance_scale.py's protocol, then frozen before any
+# test-IC run. 0.0217 is the exact selected value (a stage-2 endpoint
+# extension of the 7-point grid); it is never rounded to 2.2e-2 here.
+#
+# Tuning protocol note: selected under the single-shot 144 h protocol and
+# applied unchanged in the 6 h closed loop (the as-run convention).
+
+scales:
+  mab:
+    sst: {n20: 1.0e-3, n50: 2.2e-4, n200: 1.0e-4}
+    sss: {n10: 2.2e-4, n20: 4.6e-4, n35: 2.2e-4, n50: 2.2e-4, n100: 2.2e-4, n200: 2.2e-4}
+  ccs:
+    sst: {n20: 1.0e-2, n50: 2.2e-3, n200: 1.0e-3}
+    sss: {n20: 0.0217, n50: 0.0217, n200: 1.0e-2}
+
+# Diagnostic-only variant (not a production campaign cell): the matched-noise
+# sensitivity slice ran ccs/sst/n50 at sigma_obs 0.0887 degC with scale 4.6e-4.
+matched_sigma_slice:
+  region: ccs
+  variable: sst
+  n50: 4.6e-4
+  sigma_obs: 0.0887

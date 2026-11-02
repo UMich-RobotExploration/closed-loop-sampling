@@ -1,0 +1,55 @@
+# Closed-loop chain configuration — every as-run constant of the published
+# campaigns (Alg. 1). The code constants in closedloop_sampling.closed_loop,
+# .forecast.ensemble, .assimilation.guidance and .observations are these same
+# values; this file is the human-readable record.
+
+ensemble:
+  n_members: 25                # analysis-ensemble size
+  initial: tiled_ic_latent     # N identical copies of the normalized IC latent;
+                               # member spread is created by the first generative roll
+
+chain:
+  n_cycles: 40                 # cycle c scores lead (c+1)*6 h; 40 cycles = 240 h
+  step_hours: 6
+  start_lead: 0                # the chain starts at the IC (the published convention)
+  retain_first: true           # each generation predicts 4 states; the first (+6 h) is kept
+  autocast: bf16               # generation and guided update on CUDA
+
+generation:                    # EDM, as trained (Karras rho=7 schedule, Heun, deterministic)
+  n_sampling_steps: 20
+  sigma_min: 0.002
+  sigma_max: 80.0
+  sigma_data: 0.5
+
+fleet:
+  sizes: [20, 50, 200]         # main campaign; the sweep adds 10/35/100 (fleet_sweep.yaml)
+  v_auv_ms: 1.5                # propulsion speed
+  reach_window_s: 21600        # per-cycle reach window (6 h); reach radius = v * window
+  initial_deployment: coverage_grid   # even lattice snapped to wet cells (+ farthest-point top-up)
+
+observations:                  # target variable only; one draw per cycle, shared by members
+  sigma_obs:
+    temp: 0.2                  # degC
+    salt: 0.142729540049881    # psu = 0.2 * 3.6912 / 5.1723 (executed literals)
+  guided_frame: 0              # the +6 h predicted frame is assimilated
+
+seeds:                         # the complete CRN scheme (production values)
+  denoiser_seed: 0             # the campaigns ran the seed-0 denoiser
+  chain_seeds: [0, 1, 2]       # rseed; paired across policies by CRN
+  ic_key: days_since_2000-01-01   # integer key of the IC date
+  member_seed: "denoiser_seed*1000000 + ic_key*1000 + member"
+  forecast_roll_seed: "member_seed + cycle*100003 + 777777"    # rseed-INDEPENDENT
+  guided_start_seed: "member_seed + cycle*100003 + 222333 + rseed*7"
+  obs_noise_seed: "70000 + ic_key*1009 + cycle + rseed"
+  random_placement_seed: "rseed*9991 + cycle"
+  constants:
+    cycle_stride: 100003
+    forecast_offset: 777777
+    guided_offset: 222333
+    guided_rseed_stride: 7
+    obs_base: 70000
+    ic_key_stride: 1009
+    random_placement_stride: 9991
+
+policies: [static, random, lawnmower, a_optimal, d_optimal]
+# guidance scales per (region, variable, fleet): guidance_scales.yaml

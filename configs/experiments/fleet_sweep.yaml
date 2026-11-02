@@ -1,0 +1,12 @@
+# Fleet-size sweep (the paper's fleet-size figure): MAB salinity at three
+# additional fleet sizes, all five policies, 10 sealed ICs x 3 seeds
+# (450 chains). The guidance scale at every sweep size is the frozen MAB/SSS
+# value 2.2e-4 (guidance_scales.yaml; the tuning placement is prefix-
+# consistent in fleet size, so the sweep sizes inherit the selection).
+# NOTE: no replicate chains exist at these fleet sizes — claims at 10/35/100
+# are mean-level with paired tests only (no rerun-tolerance floor).
+region: mab
+target: salt
+fleets: [10, 35, 100]
+strategies: [static, random, lawnmower, a_optimal, d_optimal]
+seeds: [0, 1, 2]

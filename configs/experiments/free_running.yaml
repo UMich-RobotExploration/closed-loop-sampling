@@ -1,0 +1,11 @@
+# Free-running reference chains: no sampling, no update — the forecast rolls
+# 40 cycles under the loop convention. One chain per (region, target, sealed
+# IC); fleet-invariant (run at the nominal fleet size 50, seed 0). These
+# chains anchor the skill fraction (0 = free-running, 1 = autoencoder floor)
+# and, with dump_latents, provide the member latents behind the spread-error
+# diagnostics and the ensemble figures.
+regions: [mab, ccs]
+targets: [temp, salt]
+nfleet: 50
+rseed: 0
+dump_latents: true

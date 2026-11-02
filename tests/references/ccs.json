@@ -1,0 +1,13 @@
+{
+  "_provenance": "CCS denoiser reference recorded by the restructured forecaster package against the released CCS EMA checkpoint (CPU, fp32, 2 torch threads). Tolerance comparison (atol/rtol 1e-5) is the contract; the hash is a fingerprint.",
+  "denoiser_params": 374938452,
+  "probe_ccs_denoiser": {
+    "inputs": "torch.manual_seed(0); noisy randn(1,84,4,22,23); cond randn(1,84,1,22,23) drawn in that order; sigma 1.0; sigma_data 0.5",
+    "mean": 0.00851825,
+    "std": 0.80151224,
+    "min": -4.49924517,
+    "max": 4.45359612,
+    "first5": [-0.572949, 0.831163, 0.195968, -0.801655, -0.730431],
+    "sha256_round_1e4": "1b19d9d1119d6e398897a63028a2a8d86608ab403f4b124c0355f0c8ba892521"
+  }
+}

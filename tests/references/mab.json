@@ -1,0 +1,29 @@
+{
+  "_provenance": "Reference values recorded from the production research pipeline on CPU (fp32, 2 torch threads) and reproduced bit-identically (rounded-array sha256) by the restructured forecaster package against the released EMA checkpoints. Tolerance comparison (atol/rtol 1e-5) is the contract; the hashes are a convenience fingerprint and BLAS-threading sensitive.",
+  "denoiser_params": 374938452,
+  "autoencoder_params": 256388460,
+  "probe_A_denoiser": {
+    "inputs": "torch.manual_seed(0); noisy randn(1,84,4,13,30); cond randn(1,84,1,13,30) drawn in that order; sigma 1.0; sigma_data 0.5",
+    "mean": 0.01528204,
+    "std": 0.65427858,
+    "min": -3.11986542,
+    "max": 3.12497544,
+    "first5": [-0.533728, 0.486317, -0.433112, 0.359057, -0.534748],
+    "sha256_round_1e4": "974408e42ee9e5247ffab7fba85031cb0bd633c09726b5cfd73c106f1cd08056"
+  },
+  "probe_B_decode": {
+    "inputs": "torch.manual_seed(0); latent randn(1,84,13,30)",
+    "mean": -0.07549305,
+    "std": 0.6689024,
+    "min": -10.0455246,
+    "max": 4.64692736,
+    "first5": [0.03306, -0.115198, -0.234085, -0.563891, -0.754405],
+    "sha256_round_1e4": "ef675e85f337909433474cdb975bfce693693f02703fe645040ee93fb88bc6c9"
+  },
+  "probe_B_encode": {
+    "inputs": "torch.manual_seed(1); x randn(1,83,104,240); static ones(1,1,104,240)",
+    "mean": -0.17590435,
+    "std": 1.17595649,
+    "sha256_round_1e4": "c2d2311393633d82ed3a88fd3a645a0b8f60f8420daa926b2a57d585501fe5e4"
+  }
+}

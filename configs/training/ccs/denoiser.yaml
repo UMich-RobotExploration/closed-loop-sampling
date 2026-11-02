@@ -1,0 +1,42 @@
+# AS-RUN recipe of the released CCS denoiser checkpoints (seeds 0 and 1)
+# (overlay for scripts/train_denoiser.py --region ccs --config this-file --seed {0,1}).
+# Production selection: best-on-val (seed 0: epoch 6, val 0.241398;
+# seed 1: epoch 8, val 0.257570); EMA weights at inference.
+region: ccs
+# seed: pass --seed 0 or --seed 1 (both released)
+
+epochs: 15
+lr: 1.0e-4
+warmup_steps: 1000
+lr_cosine_cycles: 0.5
+optimizer_eps: 1.0e-8
+weight_decay: 0.01
+gradient_clip_norm: 1.0
+
+train_year_range: [1980, 2014]
+val_year_range: [2015, 2015]
+
+batch_size_per_device: 4
+gradient_accumulation_steps: 1
+num_workers: 4
+
+num_train_timesteps: 1000
+sigma_min: 0.002
+sigma_max: 80.0
+sigma_data: 0.5
+p_mean: -1.2
+p_std: 1.2
+num_push_forward_steps: 1
+
+ema_decay: 0.9999
+ema_use_warmup: true
+ema_update_after_step: 1000
+ema_inv_gamma: 1.0
+ema_power: 0.667
+
+mixed_precision: bf16
+checkpoint_every_n_epochs: 2
+keep_last_n_checkpoints: 3
+save_best_val: true
+val_every_n_epochs: 2
+val_max_batches: 100

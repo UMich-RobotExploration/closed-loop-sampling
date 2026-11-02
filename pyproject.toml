@@ -7,7 +7,7 @@ name = "closedloop_sampling"
 version = "0.1.0"
 description = "Closed-loop adaptive sampling on a generative ocean model: forecast ensemble, acquisition scores, reachability, guided analysis update"
 authors = [{ name = "Shayesteh Hafezi", email = "shafezi@umich.edu" }]
-license = { text = "MIT" }
+license = "MIT"
 requires-python = ">=3.11"
 # Pins mirror the production environment the released checkpoints were trained
 # and verified under. The upstream `ladcast` dependency is fetched at setup

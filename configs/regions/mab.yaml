@@ -1,0 +1,94 @@
+# MAB (Mid-Atlantic Bight; Doppio v3 ROMS reanalysis) — RegionConfig.
+# AUTHORITATIVE source for every MAB dataset-specific value; parsed by
+# closedloop_sampling.regions.load("mab"). Historical region name: "doppio"
+# (after the dataset); load("doppio") resolves here. Paths are RELATIVE to
+# ${CLOSEDLOOP_DATA_ROOT} (data) / ${CLOSEDLOOP_RUNS} or ${CLOSEDLOOP_WEIGHTS}
+# (runs/weights). Values are the production pipeline's, not invented.
+name: mab
+description: Doppio v3 ROMS reanalysis, Mid-Atlantic Bight (western-boundary shelf).
+
+raw:
+  staging_glob_patterns: ["doppio_fwd_*_plusdye.nc"]
+  staging_dir: mab/his_raw
+  steps_per_file: 72
+  time_units: "hours since 2007-01-02 01:00:00"
+  calendar: proleptic_gregorian
+  decode_times_on_read: true
+  dtype_on_disk: float32
+
+grid:
+  native_eta_rho: 106
+  native_xi_rho: 242
+  u_point_dims: [106, 241]       # destagger xi: xi_u = 241
+  v_point_dims: [105, 242]       # destagger eta: eta_v = 105
+  crop_eta_slice: [1, 105]       # 1 cell per edge -> [1:-1] on 106
+  crop_xi_slice: [1, 241]        # [1:-1] on 242
+  cropped_h: 104
+  cropped_w: 240
+  cell_size_m: 7000.0
+  crop_note: "1 cell per edge, symmetric."
+metric_crop:                     # THE crop (mirrors the grid slices; the loader
+  eta: [1, 105]                  # asserts agreement). Single source of truth for
+  xi: [1, 241]                   # dataloaders, truth reads, and metric domains.
+
+vertical:
+  native_level_count: 40
+  staged_level_indices: [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39]
+  kept_level_indices: [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39]
+  n_levels_kept: 20              # 20 selected directly, no drop
+  dropped_staged_pos: null
+  surface_level_index: 19        # last of 20 kept
+  cs_r_kept_note: "deepest kept Cs_r = -0.9079, surface = -0.0 (20 levels)"
+
+channels:
+  dyn3d_vars: [u, v, temp, salt]       # x 20 sigma-levels = 80 channels
+  dyn2d_vars: [zeta, ubar, vbar]       # + 3
+  n_dynamic_channels: 83
+  static_channels: 1                   # mask_rho (binary wet mask)
+  total_in_channels: 84
+  total_out_channels: 84
+  static_vars_2d: [mask_rho, h, lat_rho, lon_rho, angle, pm, pn, f]
+  static_vars_1d: [s_rho, Cs_r]
+  destagger_masks: [mask_u, mask_v]    # read per raw file for destaggering, not stored
+
+latent:
+  latent_h: 13                   # 104 // 8
+  latent_w: 30                   # 240 // 8
+  latent_channels: 84
+  compression_per_dim: 8
+  rope_spatial_grid_start_pos: [0, 0]
+  rope_spatial_grid_end_pos: [12, 29]
+  n_spatial_tokens: 390
+
+timesplit:
+  cadence_hours: 1               # hourly store
+  internal_stride: 6             # 6 index steps = 6 h
+  interval_between_pred: 6
+  sequence_length: 5             # 1 cond + 4 pred
+  n_cond_frames: 1
+  n_pred_frames: 4
+  n_timesteps_total: 157752
+  expected_deoverlapped_steps: null    # no overlap in the raw files
+  start_time: "2007-01-02T01:00:00"
+  end_time: "2024-12-31T00:00:00"
+  train_year_range: [2007, 2020] # AS-RUN production split
+  val_year_range: [2021, 2021]
+  test_year_range: [2022, 2024]
+
+dedup: null                      # raw files are contiguous, no overlap
+
+validation:
+  temp_min: -5.0
+  temp_max: 45.0
+  salt_min: 0.0
+  salt_max: 45.0
+  zeta_abs_max: 15.0
+
+paths:
+  preprocessed_zarr: mab/mab_his_preprocessed.zarr
+  pixel_norm_stats: mab/mab_norm_stats.json
+  latents_zarr: mab/mab_latents.zarr
+  latent_norm_stats: mab/mab_latent_norm_stats.json
+  static_source: mab/mab_his_preprocessed.zarr   # MAB statics live inline in the store
+  dcae_run_dir: dcae_mab
+  denoiser_runs_dir: "."         # denoiser_<region>/seed_* under the runs/weights root

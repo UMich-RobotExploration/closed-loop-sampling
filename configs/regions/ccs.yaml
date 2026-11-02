@@ -1,0 +1,119 @@
+# CCS (California Current System; UCSC CCSRA31 ROMS 4D-Var reanalysis) —
+# RegionConfig. AUTHORITATIVE source for every CCS dataset-specific value;
+# parsed by closedloop_sampling.regions.load("ccs"). Paths RELATIVE to
+# ${CLOSEDLOOP_DATA_ROOT} / ${CLOSEDLOOP_RUNS} / ${CLOSEDLOOP_WEIGHTS}.
+# Locked decisions, as trained: crop mask_rho[2:178, 1:185] -> 176x184; drop the
+# DEEPEST staged sigma-level -> 20 kept (surface-preserving); latent 22x23;
+# natively 6-hourly (internal_stride 1); later-file-wins dedup -> 57,441 steps.
+name: ccs
+description: UCSC CCSRA31 ROMS 4D-Var reanalysis, California Current (eastern-boundary upwelling).
+
+raw:
+  staging_glob_patterns: ["wc12_ccsra31_his_*.nc", "fwd_*_001_*.nc"]   # core + ext collections
+  staging_dir: ccs/staging
+  steps_per_file: 33
+  time_units: "seconds since 1900-01-01 00:00:00"
+  calendar: gregorian
+  decode_times_on_read: false    # staged raw numeric time (decode at ingest)
+  dtype_on_disk: float64
+
+grid:
+  native_eta_rho: 181
+  native_xi_rho: 186
+  u_point_dims: [181, 185]       # destagger xi 185 -> 186
+  v_point_dims: [180, 186]       # destagger eta 180 -> 181
+  crop_eta_slice: [2, 178]       # drop 3 rows NORTH (high eta) + 2 SOUTH
+  crop_xi_slice: [1, 185]        # drop 1 col each side
+  cropped_h: 176
+  cropped_w: 184
+  # Scalar mean cell size over WET cells: lon 1/mean(pm) = 8686 m,
+  # lat 1/mean(pn) = 11113 m -> mean 9899.6 m. Kept SCALAR (parallel to the MAB
+  # 7000 m constant); the 0.1-deg grid is anisotropic by design. Reachability
+  # uses the per-axis metres from the store's pm/pn, not this scalar.
+  cell_size_m: 9900.0
+  crop_note: "drop 3 NORTH (~48N, land-heavy) + 2 SOUTH (~30N, open ocean); 1 col each side. crop wet frac 0.6559 vs full 0.6554."
+metric_crop:                     # THE crop (mirrors the grid slices; the loader
+  eta: [2, 178]                  # asserts agreement). The CCS crop lives here
+  xi: [1, 185]                   # and nowhere else.
+
+vertical:
+  native_level_count: 42         # s_w = 43 -> 42 native rho levels
+  staged_level_indices: [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41]
+  kept_level_indices: [3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41]
+  n_levels_kept: 20              # deepest staged level dropped (surface-preserving)
+  dropped_staged_pos: 0          # drop the deepest staged level (Cs_r = -0.9007)
+  surface_level_index: 19        # true surface preserved
+  # The CCS deepest kept Cs_r (-0.792) is SHALLOWER than MAB's (-0.9079); the
+  # two regions do not share a common depth axis.
+  cs_r_kept_note: "deepest kept Cs_r = -0.792 (vs MAB -0.9079), surface = -0.0008 (20 levels)"
+
+channels:
+  dyn3d_vars: [u, v, temp, salt]       # same var/level order as MAB
+  dyn2d_vars: [zeta, ubar, vbar]
+  n_dynamic_channels: 83
+  static_channels: 1                   # mask_rho
+  total_in_channels: 84
+  total_out_channels: 84
+  # Same 8 rho-grid statics as MAB (all present in ccs_static.nc, which also
+  # carries u/v/psi masks + s-coord scalars; join against it at ingest).
+  static_vars_2d: [mask_rho, h, lat_rho, lon_rho, angle, pm, pn, f]
+  static_vars_1d: [s_rho, Cs_r]
+  destagger_masks: [mask_u, mask_v]
+
+latent:
+  latent_h: 22                   # 176 // 8
+  latent_w: 23                   # 184 // 8
+  latent_channels: 84
+  compression_per_dim: 8
+  rope_spatial_grid_start_pos: [0, 0]
+  rope_spatial_grid_end_pos: [21, 22]
+  n_spatial_tokens: 506
+
+timesplit:
+  cadence_hours: 6               # natively 6-hourly
+  internal_stride: 1             # 6 h == 1 index step (MAB's 6 must NOT be inherited)
+  interval_between_pred: 6
+  sequence_length: 5             # 1 cond + 4 pred
+  n_cond_frames: 1
+  n_pred_frames: 4
+  n_timesteps_total: 57441       # de-overlapped unique 6-h steps
+  expected_deoverlapped_steps: 57441   # hard build-time assertion target
+  start_time: "1980-01-09T00:00:00"
+  end_time: "2019-05-04T00:00:00"
+  # LOCKED end-loaded temporal holdout: train strictly precedes val/test; test
+  # (2016-2019) contiguous, never touched by training or tuning; val (2015) for
+  # region-specific tuning. Under any end-loaded holdout the calendar decides
+  # where the 2014-16 marine heatwave lands (onset in train, peak in val, decay
+  # in test) — a pre-registered asymmetry vs the regime-benign MAB test window.
+  train_year_range: [1980, 2014] # AS-RUN production split
+  val_year_range: [2015, 2015]
+  test_year_range: [2016, 2019]
+
+dedup:
+  rule: later-file-wins
+  slice_len_steps: 16            # 4-day non-overlapping lead per file
+  last_file_keeps_tail: true
+  seam_prefers: core             # float64 core over int16 ext at the 2010 seam
+  half_open: true
+
+validation:
+  # Tuned for the upwelling regime. temp locked from the observed clean 40-yr
+  # full-column range (real max 26.44 C; deep floor ~1.5 C); physically
+  # impossible wet cells (2.7e-6 % of wet values) are CLIPPED to [0, 28] in the
+  # store before norm stats (datasets/clip_ccs_temp_artifacts.py).
+  temp_min: 0.0
+  temp_max: 28.0
+  # Surface salt reaches 24.43 PSU in the Columbia/Juan-de-Fuca plume
+  # (physical river/strait freshening) -> bound loosened with headroom.
+  salt_min: 20.0
+  salt_max: 36.0
+  zeta_abs_max: 1.5              # no tides -> small SSH (observed -0.20 .. 0.72 m)
+
+paths:
+  preprocessed_zarr: ccs/ccs_his_preprocessed.zarr
+  pixel_norm_stats: ccs/ccs_norm_stats.json
+  latents_zarr: ccs/ccs_latents.zarr
+  latent_norm_stats: ccs/ccs_latent_norm_stats.json
+  static_source: ccs/staging/ccs_static.nc       # CCS statics are a separate file
+  dcae_run_dir: dcae_ccs
+  denoiser_runs_dir: "."

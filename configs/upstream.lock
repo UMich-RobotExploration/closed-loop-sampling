@@ -1,0 +1,8 @@
+# Upstream pin for the LaDCast dependency, verified by tools/fetch_upstream.py.
+# The commit is an untagged upstream master commit; the file hashes guard
+# against history rewrites of the pin.
+url: https://github.com/tonyzyl/ladcast
+commit: 112143fa9021bfb1f0d9a828bb70863850938ca0
+sha256:
+  LICENSE: 1bf2a0814ba4504f1614e38bb2142dfb75fd164b82488ad8306f7347e9f1bcd5
+  pyproject.toml: 2cf853526fdacc088e32d5df50865320d7d3772f29b3c5e0b717ca209307e735

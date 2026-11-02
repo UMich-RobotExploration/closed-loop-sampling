@@ -1,0 +1,40 @@
+# AS-RUN recipe of the released MAB DC-AE checkpoint (overlay for
+# scripts/train_dcae.py --region mab --config this-file).
+# Production selection: best-on-val (epoch 18 of the 30-epoch pretrain,
+# val_loss 0.004577); EMA weights are the inference convention.
+region: mab
+seed: 42
+
+pretrain_epochs: 30
+# Disabled (non-functional under DDP); production weights are
+# pretrain-phase best-on-val EMA — the decoder-finetune stage was configured
+# in the research run but NEVER executed.
+decoder_finetune_epochs: 0
+lr_pretrain: 1.0e-4
+lr_finetune: 1.0e-5              # unused at finetune 0; kept for completeness
+warmup_steps: 1000
+lr_cosine_cycles: 0.5
+optimizer_betas: [0.9, 0.999]
+optimizer_eps: 1.0e-8
+weight_decay: 0.01
+gradient_clip_norm: 1.0
+
+train_year_range: [2007, 2020]
+val_year_range: [2021, 2021]
+
+batch_size_per_device: 4
+gradient_accumulation_steps: 1
+num_workers: 4
+
+ema_decay: 0.9999
+ema_use_warmup: true
+ema_update_after_step: 1000
+ema_inv_gamma: 1.0
+ema_power: 0.667
+
+mixed_precision: bf16
+checkpoint_every_n_epochs: 5
+keep_last_n_checkpoints: 3
+save_best_val: true
+val_every_n_epochs: 2
+val_max_batches: 200

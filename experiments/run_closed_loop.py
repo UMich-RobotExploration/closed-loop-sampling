@@ -77,6 +77,9 @@ def main():
     ap.add_argument("--members", type=int, default=25)
     ap.add_argument("--dump-latents", action="store_true",
                     help="save per-cycle analysis latents (fp16 npz)")
+    ap.add_argument("--dump-selection-fixtures", type=int, default=0,
+                    help="record the planner's exact inputs and chosen cells "
+                         "for the first K cycles (replay fixtures)")
     ap.add_argument("--truth", choices=["bundle", "store"], default="bundle")
     ap.add_argument("--denoiser-checkpoint", default=None,
                     help="explicit dir with ema.pt (default: release layout)")
@@ -163,7 +166,8 @@ def main():
     res = run_chain(models, inputs, target=target, strategy=args.strategy,
                     rseed=args.rseed, guidance_scale=scale,
                     n_fleet=args.nfleet, n_cycles=args.ncyc,
-                    n_members=args.members, dump_latents=args.dump_latents)
+                    n_members=args.members, dump_latents=args.dump_latents,
+                    dump_selection_fixtures=args.dump_selection_fixtures)
 
     out_dir = Path(args.out_dir) if args.out_dir else paths.runs_root() / "chains"
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -183,6 +187,17 @@ def main():
         np.savez_compressed(lfn, prior_latents=np.stack(res.prior_latents_fp16),
                             region=region_name, ic=args.ic_datetime)
         print(f"wrote {lfn}")
+    if res.selection_fixtures:
+        ffn = out_dir / f"{stem}_selection_fixtures.npz"
+        np.savez_compressed(
+            ffn, n_cycles=len(res.selection_fixtures), region=region_name,
+            ic=args.ic_datetime,
+            **{f"c{d['cycle']}_{k}": (np.array(d[k], dtype=object)
+                                      if k == "feas" else d[k])
+               for d in res.selection_fixtures
+               for k in ("member_fields_wet", "cand_field", "feas", "R",
+                         "criterion", "n_fleet", "chosen_field")})
+        print(f"wrote {ffn}")
     print("CHAIN OK")
 
 

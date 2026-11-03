@@ -93,6 +93,7 @@ class ChainResult:
     chosen_log: list             # per cycle: chosen cells [[r, c], ...]
     fleet_log: list              # per cycle: vehicle start positions
     prior_latents_fp16: list = field(default_factory=list)   # if dump_latents
+    selection_fixtures: list = field(default_factory=list)   # if dump_selection_fixtures
     stopped_early: bool = False
 
 
@@ -133,10 +134,17 @@ def run_chain(
     n_cycles: int = N_CYCLES,
     n_members: int = N_MEMBERS,
     dump_latents: bool = False,
+    dump_selection_fixtures: int = 0,
     verbose: bool = True,
 ) -> ChainResult:
     """One chain: `n_cycles` cycles of Alg. 1 at one (IC, target, fleet,
-    policy, seed)."""
+    policy, seed).
+
+    dump_selection_fixtures=k records, for the first k cycles of an
+    ensemble-driven policy, the EXACT planner inputs and output — the member
+    target fields at the wet cells, the candidate set, the per-vehicle
+    feasibility partition, R and the chosen cells — as frozen replay fixtures
+    (the planner is numpy-only, so replay is exact on CPU)."""
     device = models.device
     cfg = inputs.region
     idx = cfg.channel_indices()
@@ -243,6 +251,17 @@ def run_chain(
                 fleet_dump = None                              # set below from cells
             chosen_field, new_fleet = policy.plan(ctx)
             extras = ctx.extras
+            if (dump_selection_fixtures and c < dump_selection_fixtures
+                    and policy.uses_ensemble):
+                result.selection_fixtures.append(dict(
+                    cycle=c,
+                    member_fields_wet=ctx.member_target_fields[
+                        :, wet[:, 0], wet[:, 1]].astype(np.float32),
+                    cand_field=np.asarray(ctx.cand_field, np.int64),
+                    feas=[np.asarray(f, np.int64) for f in ctx.feas],
+                    R=float(R), criterion=getattr(policy, "criterion", strategy),
+                    n_fleet=int(n_fleet),
+                    chosen_field=[int(j) for j in chosen_field]))
             if not policy.moving:
                 fleet_dump = wet[np.array(chosen_field)].astype(np.float32)
             if not chosen_field:

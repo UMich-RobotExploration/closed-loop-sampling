@@ -36,6 +36,13 @@ _ENCODED = [
 ]
 PATTERNS = [re.compile(base64.b64decode(e).decode(), re.IGNORECASE)
             for e in _ENCODED]
+# Binary payloads (images, archives, tensors) are scanned with the long,
+# distinctive patterns only: the two three-letter word-boundary tokens match
+# random byte runs inside compressed streams and carry no signal there. Text
+# files keep the full list.
+BINARY_PATTERNS = [p for p in PATTERNS if "\\b" not in p.pattern]
+BINARY_SUFFIXES = {".png", ".gif", ".jpg", ".pdf", ".npz", ".gz", ".zst",
+                   ".safetensors", ".mp4"}
 
 SELF = Path(__file__).resolve()
 
@@ -45,9 +52,9 @@ def _tracked_files():
     return [ROOT / line for line in out.splitlines() if line]
 
 
-def scan_text(text: str, origin: str, findings: list):
+def scan_text(text: str, origin: str, findings: list, patterns=None):
     for i, line in enumerate(text.splitlines(), 1):
-        for pat in PATTERNS:
+        for pat in (patterns if patterns is not None else PATTERNS):
             if pat.search(line):
                 findings.append(f"{origin}:{i}: {pat.pattern!r}: {line.strip()[:120]}")
 
@@ -66,7 +73,8 @@ def main() -> int:
             text = path.read_text(errors="replace")
         except (IsADirectoryError, FileNotFoundError):
             continue
-        scan_text(text, str(path.relative_to(ROOT)), findings)
+        pats = BINARY_PATTERNS if path.suffix in BINARY_SUFFIXES else None
+        scan_text(text, str(path.relative_to(ROOT)), findings, pats)
         scan_text(path.name, f"{path.relative_to(ROOT)} (filename)", findings)
 
     if args.log:

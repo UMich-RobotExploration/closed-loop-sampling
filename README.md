@@ -6,31 +6,97 @@ Shayesteh Hafezi, Alan Papalia — University of Michigan
 [![weights](https://img.shields.io/badge/weights-Hugging_Face-yellow.svg)](https://huggingface.co/shafezi/closed-loop-sampling)
 [![artifacts](https://img.shields.io/badge/artifacts-Hugging_Face-yellow.svg)](https://huggingface.co/datasets/shafezi/closed-loop-sampling-artifacts)
 
-![One closed-loop campaign: the free-running forecast ensemble (top), each policy's robots, reachable sets and selected cells on its own ensemble spread (middle), and the ensemble-mean error each policy leaves behind (bottom).](assets/teaser.gif)
+## The problem
 
-A multi-robot closed-loop adaptive sampling framework that uses a single
-learned generative ocean model for forecasting, uncertainty estimation,
-planning, and measurement assimilation. The model forecasts an analysis
-ensemble in latent space, decodes it to physical ocean states, and uses
-ensemble statistics to construct A- or D-optimal acquisition scores; sampling
-locations are selected under robot reachability constraints from predicted
-currents, and the collected measurements are assimilated back into the latent
-state by observation-conditioned diffusion sampling. The loop is evaluated on
-two ROMS reanalysis regions — the Mid-Atlantic Bight (MAB, Doppio) and the
-California Current System (CCS, CCSRA31) — over 120 test cases (2 regions x
-2 variables x 3 fleet sizes x 10 sealed initial conditions), 5 policies x
-3 paired seeds each.
+The ocean is vast, dynamic, and sparsely observed, and a fleet of mobile
+robots can only measure a few points of it per cycle. Deciding where those
+few measurements should go requires a forecast of the evolving state, a
+usable notion of forecast uncertainty, a planner that respects how far each
+robot can actually travel through the currents, and a way to fold the
+collected measurements back into the forecast. This repository implements and
+evaluates a closed loop in which one learned generative ocean model plays all
+four roles — forecaster, uncertainty source, planner input, and assimilator —
+so that a 25-member analysis ensemble tracks the evolving ocean state from
+the samples the fleet collects.
+
+## How it works
 
 <img src="assets/method.png" width="420" alt="Method overview: forecast the next latent state, decode the ensemble, quantify uncertainty and select sampling locations, assimilate observations."/>
 
-**Results.** Uncertainty-driven sampling generally outperforms static, random
-and systematic-coverage baselines while adding little planning overhead:
-A-optimal removes 38/47/61 percent of the recoverable MAB temperature error at
-fleet sizes 20/50/200 (final-eight-cycle window); the median full
-forecast-plan-assimilate cycle takes 123 s on MAB and 151 s on CCS on a single
-NVIDIA A40 in bf16, inside a six-hour observation interval; and across the
-1,800-run campaign every printed number in the paper's three tables regenerates
-from the released per-run scores (verified cell by cell, 466/466).
+One six-hour cycle of Alg. 1, orchestrated by
+[`src/closedloop_sampling/closed_loop.py`](src/closedloop_sampling/closed_loop.py):
+
+1. **Forecast.** Each of the 25 analysis members is rolled one step in latent
+   space by the EDM denoiser, conditioned on its current latent analysis; the
+   +6 h prediction is retained
+   ([`src/closedloop_sampling/forecast/`](src/closedloop_sampling/forecast/)).
+2. **Decode.** The autoencoder decodes the latent ensemble to physical surface
+   fields — the target variable for planning and scoring, and the surface
+   currents for reachability
+   ([`forecast/decode.py`](src/closedloop_sampling/forecast/decode.py)).
+3. **Quantify and select.** Ensemble anomalies give the A- or D-optimal
+   acquisition score of every reachable wet cell; a greedy assignment places
+   the fleet inside the current-advected reachable sets, applying the serial
+   square-root planning update between picks
+   ([`src/closedloop_sampling/sampling/`](src/closedloop_sampling/sampling/)).
+4. **Assimilate.** The noisy point observations at the selected cells are
+   pulled into every member by observation-conditioned diffusion sampling,
+   and the updated latent analysis starts the next cycle
+   ([`src/closedloop_sampling/assimilation/`](src/closedloop_sampling/assimilation/)).
+
+## The two study regions
+
+![The two model domains outlined on a map of the United States: the Mid-Atlantic Bight on the East Coast and the California Current System on the West Coast.](assets/usa_overview.png)
+
+| | MAB | CCS |
+|---|---|---|
+| reanalysis | Doppio (Wilkin et al., 2022) | CCSRA31 (Neveu et al., 2016) |
+| native grid -> model crop | 106 x 242 -> 104 x 240 | 181 x 186 -> 176 x 184 |
+| cell size | ~7.0 km (7004 x 6985 m) | ~8.7 x 11.1 km (anisotropic 0.1 deg grid) |
+| store span | hourly, 2007-01 to 2024-12 (157,752 steps) | 6-hourly, 1980-01 to 2019-05 (57,441 steps) |
+| test years | 2022-2024 (sealed ICs 2022-2023) | 2016-2019 (sealed ICs 2016-2018) |
+| latent shape | 84 x 13 x 30 | 84 x 22 x 23 |
+
+Values from [`configs/regions/mab.yaml`](configs/regions/mab.yaml) and
+[`configs/regions/ccs.yaml`](configs/regions/ccs.yaml), the authoritative
+region configurations.
+
+## Results
+
+Across 120 test cases (2 regions x 2 variables x 3 fleet sizes x 10 sealed
+initial conditions; 5 policies x 3 paired seeds each), uncertainty-driven
+sampling generally outperforms static, random and systematic-coverage
+baselines while adding little planning overhead: A-optimal removes 38/47/61
+percent of the recoverable MAB temperature error at fleet sizes 20/50/200
+(final-eight-cycle window); the median full forecast-plan-assimilate cycle
+takes 123 s on MAB and 151 s on CCS on a single NVIDIA A40 in bf16, inside a
+six-hour observation interval; and across the 1,800-run campaign every
+printed number in the paper's three tables regenerates from the released
+per-run scores (verified cell by cell, 466/466).
+
+<img src="assets/fig3_skill.png" width="500" alt="Fraction of recoverable error removed per policy, fleet size, region and variable."/>
+
+Fraction of recoverable error removed over the final eight cycles (0 =
+free-running, 1 = autoencoder floor), mean and one standard deviation across
+the 10 sealed ICs — regenerated from the committed scores by
+`results/figures/fig3_skill.py`.
+
+<img src="assets/fig6_confidently_wrong.png" width="700" alt="A confidently wrong case: absolute SST error, ensemble spread, and their normalized displacement for the MAB 2022-08-02 window."/>
+
+The benefit of uncertainty-driven sampling tracks how well ensemble spread
+aligns with forecast error, and the alignment fails on individual dates: in
+the MAB 2022-08-02 window above, large errors sit where the ensemble is
+confident (normalized displacement well above 1). Table II quantifies this
+per IC via the spread-error correlation r; Fig. 6 in the paper is this case.
+
+One full campaign, end to end — all 40 cycles of the MAB SST chain from IC
+2022-04-09: the free-running forecast ensemble (top row), each policy's
+robots, reachable sets and selected cells on its own ensemble spread (middle),
+and the ensemble-mean error each policy leaves behind (bottom).
+
+<!-- VIDEO: drag results/out/review_r12b/loop_full_1280.mp4 (9.6 MB, H.264)
+into this line in the GitHub web editor; the inserted user-attachments URL
+renders as an inline player. Keep the URL on its own line. -->
 
 ## Paper-to-code map
 

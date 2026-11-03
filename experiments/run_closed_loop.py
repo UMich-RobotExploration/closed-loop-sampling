@@ -35,7 +35,8 @@ import zarr
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "experiments"))
 
-from truth import TruthBundle, StoreTruth, latent_source  # noqa: E402
+from truth import (LatentBundle, StoreTruth, TruthBundle, find_bundle,  # noqa: E402
+                   latent_source)
 
 from closedloop_sampling import paths  # noqa: E402
 from closedloop_sampling.closed_loop import ChainInputs, LoopModels, run_chain  # noqa: E402
@@ -106,29 +107,46 @@ def main():
     models = LoopModels(model=model, dcae=dcae, lnorm=lnorm, pnorm=pnorm,
                         device=device)
 
-    # ---- data ----
-    lat_root = zarr.open(paths.resolve(cfg.paths.latents_zarr), mode="r")
-    ic_idx, truth_latent = latent_source(
-        lat_root["latents"], lat_root["ocean_time"], args.ic_datetime,
-        cfg.timesplit.cadence_hours)
-    bundle_path = paths.data_root() / "truth" / f"{region_name}_truth_bundle.npz"
+    # ---- data: released bundles first ($CLOSEDLOOP_ARTIFACTS, then the data
+    # root); --truth store reproduces the production store-backed path ----
     if args.truth == "bundle":
-        if not bundle_path.exists():
+        tb_path = find_bundle("truth", region_name)
+        if tb_path is None:
             raise SystemExit(
-                f"truth bundle not found at {bundle_path}; create it with "
-                f"datasets/export_truth_bundle.py or pass --truth store")
-        bundle = TruthBundle(bundle_path)
+                f"no truth bundle for {region_name}: download the artifacts "
+                "dataset (tools/download_artifacts.py) or create one with "
+                "datasets/export_truth_bundle.py, or pass --truth store")
+        bundle = TruthBundle(tb_path)
         mask = bundle.mask
         truth_field = bundle.chain_truth(args.ic_datetime, args.target)
-        ds = xr.open_zarr(paths.resolve(cfg.paths.preprocessed_zarr),
-                          consolidated=False)      # grid metrics only
+        lb_path = find_bundle("latent", region_name)
+        if lb_path is not None:
+            truth_latent = LatentBundle(lb_path).chain_latents(args.ic_datetime)
+            print(f"bundles: truth {tb_path.name}, latents {lb_path.name} "
+                  "(no store access)")
+        else:
+            lat_root = zarr.open(paths.resolve(cfg.paths.latents_zarr), mode="r")
+            _, truth_latent = latent_source(
+                lat_root["latents"], lat_root["ocean_time"], args.ic_datetime,
+                cfg.timesplit.cadence_hours)
+            print(f"bundles: truth {tb_path.name}; latents from the store")
+        if bundle.dx_col_m is not None:
+            dx_col_m, dy_row_m = bundle.dx_col_m, bundle.dy_row_m
+        else:
+            ds = xr.open_zarr(paths.resolve(cfg.paths.preprocessed_zarr),
+                              consolidated=False)      # grid metrics only
+            dx_col_m, dy_row_m = cell_metres(ds, mask, cfg.metric_crop)
     else:
+        lat_root = zarr.open(paths.resolve(cfg.paths.latents_zarr), mode="r")
+        ic_idx, truth_latent = latent_source(
+            lat_root["latents"], lat_root["ocean_time"], args.ic_datetime,
+            cfg.timesplit.cadence_hours)
         ds = xr.open_zarr(paths.resolve(cfg.paths.preprocessed_zarr),
                           consolidated=False)
         st = StoreTruth(cfg, ds)
         mask = st.mask
         truth_field = st.chain_truth(ic_idx, args.target)
-    dx_col_m, dy_row_m = cell_metres(ds, mask, cfg.metric_crop)
+        dx_col_m, dy_row_m = cell_metres(ds, mask, cfg.metric_crop)
 
     inputs = ChainInputs(
         region=cfg, ic_datetime=args.ic_datetime,

@@ -27,6 +27,7 @@ import xarray as xr
 
 from closedloop_sampling import paths
 from closedloop_sampling.regions import load as load_region
+from closedloop_sampling.sampling.reachability import cell_metres
 
 N_CYCLES = 40
 STEP_HOURS = 6
@@ -42,6 +43,9 @@ def export_truth_bundle(region_name: str, ic_datetimes, out_path: Path) -> Path:
 
     ds = xr.open_zarr(paths.resolve(cfg.paths.preprocessed_zarr), consolidated=False)
     mask = (ds["mask_rho"].values[crop] > 0.5)
+    # per-axis metric cell sizes ride in the bundle so the loop's reachability
+    # needs no store access in bundle mode
+    dx_col_m, dy_row_m = cell_metres(ds, mask, crop)
     times = np.asarray(ds["ocean_time"].values).astype("datetime64[h]")
 
     fields = {k: np.empty((len(ic_datetimes), N_STATES, mask.shape[0], mask.shape[1]),
@@ -73,6 +77,8 @@ def export_truth_bundle(region_name: str, ic_datetimes, out_path: Path) -> Path:
         ic_datetimes=np.array(ic_datetimes),
         lead_hours=np.arange(N_STATES, dtype=np.int64) * STEP_HOURS,
         region=region_name,
+        dx_col_m=float(dx_col_m),
+        dy_row_m=float(dy_row_m),
         **fields,
     )
     size_mb = out_path.stat().st_size / 1e6

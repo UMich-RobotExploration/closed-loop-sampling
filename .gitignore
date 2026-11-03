@@ -13,3 +13,4 @@ __pycache__/
 .venv*/
 .pytest_cache/
 !results/scores/locations/fig5_context.npz
+!tests/fixtures/*.npz

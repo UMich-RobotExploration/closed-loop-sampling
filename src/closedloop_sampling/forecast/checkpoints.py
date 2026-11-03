@@ -1,14 +1,20 @@
 """Checkpoint loading for the released forecaster weights.
 
 Implements the inference convention of the released checkpoints: EMA shadow
-parameters (ema.pt), best-on-validation selection. Loads resolve against
+parameters, best-on-validation selection. Loads resolve against
 $CLOSEDLOOP_WEIGHTS using the release layout
 
-    <weights>/<region>/dcae/{model.pt, ema.pt}
-    <weights>/<region>/denoiser/seed<N>/{model.pt, ema.pt}
+    <weights>/<region>/dcae/{ema.safetensors | ema.pt}
+    <weights>/<region>/denoiser/seed<N>/{ema.safetensors | ema.pt}
 
-or an explicit checkpoint directory. Loading asserts the exact released
-parameter counts: autoencoder 256,388,460 and denoiser 374,938,452.
+or an explicit checkpoint directory. Two EMA formats are accepted, preferred in
+this order:
+  ema.safetensors  named tensors keyed by the model's parameter names (the
+                   published form, written by tools/convert_weights.py)
+  ema.pt           the as-trained EMAModel state (shadow_params in parameter
+                   order)
+Loading asserts the exact released parameter counts: autoencoder 256,388,460
+and denoiser 374,938,452.
 """
 from __future__ import annotations
 
@@ -47,6 +53,29 @@ def _load_ema_into(model: torch.nn.Module, ema_path: Path) -> torch.nn.Module:
     del state, shadow
     gc.collect()
     return model
+
+
+def load_ema_weights(model: torch.nn.Module, checkpoint_dir: Path) -> str:
+    """Load the EMA weights from a checkpoint directory into `model`, trying
+    ema.safetensors first and falling back to ema.pt. Returns the file name
+    that was loaded."""
+    d = Path(checkpoint_dir)
+    st = d / "ema.safetensors"
+    if st.exists():
+        from safetensors.torch import load_file
+        tensors = load_file(str(st))
+        named = dict(model.named_parameters())
+        if set(tensors) != set(named):
+            missing = sorted(set(named) - set(tensors))[:3]
+            extra = sorted(set(tensors) - set(named))[:3]
+            raise ValueError(f"{st}: parameter names do not match the model "
+                             f"(missing e.g. {missing}, extra e.g. {extra})")
+        with torch.no_grad():
+            for k, v in tensors.items():
+                named[k].data.copy_(v)
+        return st.name
+    _load_ema_into(model, d / "ema.pt")
+    return "ema.pt"
 
 
 def _assert_params(model: torch.nn.Module, expected: Optional[int], what: str):
@@ -92,7 +121,7 @@ def load_autoencoder(
     model = RegionalDCAE(region_config=region_config)
     _assert_params(model, expect_params, "autoencoder")
     if use_ema:
-        _load_ema_into(model, checkpoint_dir / "ema.pt")
+        load_ema_weights(model, checkpoint_dir)
     else:
         state = torch.load(checkpoint_dir / "model.pt", map_location="cpu",
                            weights_only=False)
@@ -131,7 +160,7 @@ def load_denoiser(
     model = make_denoiser(region_config=region_config)
     _assert_params(model, expect_params, "denoiser")
     if use_ema:
-        _load_ema_into(model, checkpoint_dir / "ema.pt")
+        load_ema_weights(model, checkpoint_dir)
     else:
         state = torch.load(checkpoint_dir / "model.pt", map_location="cpu",
                            weights_only=False)

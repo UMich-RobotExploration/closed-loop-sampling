@@ -8,7 +8,7 @@ Probes (references in tests/references/{mab,ccs}.json):
              exact param count 256,388,460; stats within tolerance.
   ccs      — CCS denoiser: one edm_denoise step on a (1,84,4,22,23) latent.
 
-Checkpoint locations (dirs containing ema.pt), via environment:
+Checkpoint locations (dirs containing ema.safetensors or ema.pt), via environment:
   CLOSEDLOOP_EQ_DCAE          MAB autoencoder checkpoint dir
   CLOSEDLOOP_EQ_DENOISER_MAB  MAB denoiser (seed 0) checkpoint dir
   CLOSEDLOOP_EQ_DENOISER_CCS  CCS denoiser (seed 0) checkpoint dir
@@ -64,7 +64,8 @@ def _ckpt_dir(env_name: str, release_rel: str):
     if explicit:
         return Path(explicit)
     weights = os.environ.get("CLOSEDLOOP_WEIGHTS")
-    if weights and (Path(weights) / release_rel / "ema.pt").exists():
+    if weights and any((Path(weights) / release_rel / f).exists()
+                       for f in ("ema.safetensors", "ema.pt")):
         return Path(weights) / release_rel
     _skip(f"{env_name} not set and no release layout under CLOSEDLOOP_WEIGHTS")
 
@@ -94,8 +95,14 @@ def _assert_close(got: dict, ref: dict, label: str):
 
 
 def _load_ema(model, ckpt_dir: Path):
-    from closedloop_sampling.forecast.checkpoints import _load_ema_into
-    return _load_ema_into(model, Path(ckpt_dir) / "ema.pt")
+    """Directory-level EMA load: exercises whichever format the checkpoint dir
+    holds (ema.safetensors preferred, ema.pt otherwise), so pointing the env
+    dirs at converted safetensors checkpoints runs the safetensors mode of
+    this same suite."""
+    from closedloop_sampling.forecast.checkpoints import load_ema_weights
+    used = load_ema_weights(model, Path(ckpt_dir))
+    print(f"  loaded {used} from {ckpt_dir}")
+    return model
 
 
 def test_probe_a_denoiser_mab():

@@ -1,0 +1,7 @@
+# Published release endpoints. tools/download_weights.py and
+# tools/download_artifacts.py pull from these repository ids into
+# $CLOSEDLOOP_WEIGHTS and $CLOSEDLOOP_ARTIFACTS. The repositories are assembled
+# locally by tools/package_hf_release.py; nothing in this code base uploads.
+huggingface:
+  model_repo: shafezi/closed-loop-sampling
+  dataset_repo: shafezi/closed-loop-sampling-artifacts

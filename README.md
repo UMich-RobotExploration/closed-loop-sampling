@@ -66,7 +66,7 @@ from the released per-run scores (verified cell by cell, 466/466).
 ## Installation
 
 ```
-git clone https://github.com/shafezi/closed-loop-sampling.git
+git clone https://github.com/UMich-RobotExploration/closed-loop-sampling.git
 cd closed-loop-sampling
 pip install -e .[figures,dev]         # production-freeze pins + matplotlib/cmocean + pytest
 python tools/fetch_upstream.py        # pins LaDCast into third_party/ (verified)

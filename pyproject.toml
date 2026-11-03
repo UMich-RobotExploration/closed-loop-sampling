@@ -29,7 +29,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest"]
-figures = ["matplotlib==3.10.9", "cmocean==3.0.3"]
+figures = ["matplotlib==3.10.9", "cmocean==4.0.3"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

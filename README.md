@@ -66,13 +66,14 @@ from the released per-run scores (verified cell by cell, 466/466).
 ## Installation
 
 ```
-git clone <this repository> && cd closed-loop-sampling
-pip install -e .                      # pinned to the production freeze
-pip install -e .[figures,dev]         # matplotlib + cmocean, pytest
+git clone https://github.com/shafezi/closed-loop-sampling.git
+cd closed-loop-sampling
+pip install -e .[figures,dev]         # production-freeze pins + matplotlib/cmocean + pytest
 python tools/fetch_upstream.py        # pins LaDCast into third_party/ (verified)
+pip install --no-deps third_party/ladcast_upstream   # makes `import ladcast` resolve
 export CLOSEDLOOP_WEIGHTS=...  CLOSEDLOOP_ARTIFACTS=...
 python tools/download_weights.py
-python tools/download_artifacts.py --bundles-only   # ~320 MB; omit the flag for all 2.3 GB
+python tools/download_artifacts.py --bundles-only   # ~320 MB; omit the flag for all 2 GB
 pytest                                # CPU subset; weights probes run where weights exist
 ```
 

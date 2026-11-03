@@ -32,6 +32,8 @@ used for navigation or safety decisions.
 mab/dcae/        ema.safetensors, meta.json, training_config.yaml
 mab/denoiser/seed0/            same triple
 mab/region.yaml  the complete region configuration (grid, crop, channels)
+mab/wet_mask.npy the binary wet mask on the model crop (19,150 wet cells;
+                 CCS: 21,240)
 ccs/             same layout
 extras/denoiser_seed1_{mab,ccs}/   trained identically with seed 1;
                                    not used in any paper result

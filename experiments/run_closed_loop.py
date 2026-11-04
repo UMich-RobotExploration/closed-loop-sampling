@@ -49,6 +49,14 @@ from closedloop_sampling.regions import load as load_region  # noqa: E402
 from closedloop_sampling.sampling.reachability import cell_metres  # noqa: E402
 
 
+def _norm_stats(rel: str) -> Path:
+    """Normalization statistics ship IN the repository (small constants of the
+    released model, configs/normalization/); the data-root copy written by the
+    preprocessing pipeline is the fallback for store-backed runs."""
+    local = REPO / "configs/normalization" / Path(rel).name
+    return local if local.exists() else paths.resolve(rel)
+
+
 def default_scale(region: str, target: str, nfleet: int) -> float:
     table = yaml.safe_load(open(REPO / "configs/experiments/guidance_scales.yaml"))
     var = {"temp": "sst", "sst": "sst", "salt": "sss", "sss": "sss"}[target.lower()]
@@ -105,8 +113,8 @@ def main():
                           seed=0, device=device, region_config=cfg)
     dcae = load_autoencoder(args.dcae_checkpoint, region=region_name,
                             device=device, region_config=cfg)
-    lnorm = load_latent_normalizer(paths.resolve(cfg.paths.latent_norm_stats))
-    pnorm = load_pixel_normalizer(paths.resolve(cfg.paths.pixel_norm_stats))
+    lnorm = load_latent_normalizer(_norm_stats(cfg.paths.latent_norm_stats))
+    pnorm = load_pixel_normalizer(_norm_stats(cfg.paths.pixel_norm_stats))
     models = LoopModels(model=model, dcae=dcae, lnorm=lnorm, pnorm=pnorm,
                         device=device)
 

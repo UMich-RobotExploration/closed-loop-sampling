@@ -162,7 +162,7 @@ dataset card and `datasets/README.md`.
 
 ## Weights
 
-`huggingface.co/shafezi/closed-loop-sampling` (placeholder until published):
+[huggingface.co/shafezi/closed-loop-sampling](https://huggingface.co/shafezi/closed-loop-sampling):
 safetensors EMA checkpoints for both regions — autoencoder 256,388,460
 parameters, denoiser 374,938,452 parameters — each with its as-run training
 configuration and provenance metadata, plus seed-1 denoiser extras that no

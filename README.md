@@ -21,7 +21,7 @@ the samples the fleet collects.
 
 ## How it works
 
-<img src="assets/method.png" width="420" alt="Method overview: forecast the next latent state, decode the ensemble, quantify uncertainty and select sampling locations, assimilate observations."/>
+<p align="center"><img src="assets/method.png" width="420" alt="Method overview: forecast the next latent state, decode the ensemble, quantify uncertainty and select sampling locations, assimilate observations."/></p>
 
 One six-hour cycle of Alg. 1, orchestrated by
 [`src/closedloop_sampling/closed_loop.py`](src/closedloop_sampling/closed_loop.py):
@@ -46,7 +46,7 @@ One six-hour cycle of Alg. 1, orchestrated by
 
 ## The two study regions
 
-![The two model domains outlined on a map of the United States: the Mid-Atlantic Bight on the East Coast and the California Current System on the West Coast.](assets/usa_overview.png)
+<p align="center"><img src="assets/usa_overview.png" width="760" alt="The two model domains outlined on a map of the United States: the Mid-Atlantic Bight on the East Coast and the California Current System on the West Coast."/></p>
 
 | | MAB | CCS |
 |---|---|---|
@@ -74,14 +74,14 @@ six-hour observation interval; and across the 1,800-run campaign every
 printed number in the paper's three tables regenerates from the released
 per-run scores (verified cell by cell, 466/466).
 
-<img src="assets/fig3_skill.png" width="500" alt="Fraction of recoverable error removed per policy, fleet size, region and variable."/>
+<p align="center"><img src="assets/fig3_skill.png" width="500" alt="Fraction of recoverable error removed per policy, fleet size, region and variable."/></p>
 
 Fraction of recoverable error removed over the final eight cycles (0 =
 free-running, 1 = autoencoder floor), mean and one standard deviation across
 the 10 sealed ICs — regenerated from the committed scores by
 `results/figures/fig3_skill.py`.
 
-<img src="assets/fig6_confidently_wrong.png" width="700" alt="A confidently wrong case: absolute SST error, ensemble spread, and their normalized displacement for the MAB 2022-08-02 window."/>
+<p align="center"><img src="assets/fig6_confidently_wrong.png" width="700" alt="A confidently wrong case: absolute SST error, ensemble spread, and their normalized displacement for the MAB 2022-08-02 window."/></p>
 
 The benefit of uncertainty-driven sampling tracks how well ensemble spread
 aligns with forecast error, and the alignment fails on individual dates: in

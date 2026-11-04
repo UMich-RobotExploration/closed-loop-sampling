@@ -94,9 +94,9 @@ One full campaign, end to end — all 40 cycles of the MAB SST chain from IC
 robots, reachable sets and selected cells on its own ensemble spread (middle),
 and the ensemble-mean error each policy leaves behind (bottom).
 
-<!-- VIDEO: drag results/out/review_r12b/loop_full_1280.mp4 (9.6 MB, H.264)
-into this line in the GitHub web editor; the inserted user-attachments URL
-renders as an inline player. Keep the URL on its own line. -->
+
+https://github.com/user-attachments/assets/b940f49d-dea3-40a7-8da8-03e4d5998b55
+
 
 ## Paper-to-code map
 

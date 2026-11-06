@@ -16,5 +16,8 @@ preferred-citation:
     - family-names: Papalia
       given-names: Alan
   year: 2026
+  doi: 10.48550/arXiv.2611.05776
+  url: "https://arxiv.org/abs/2611.05776"
+  notes: "arXiv:2611.05776; under review"
   conference:
     name: "IEEE International Conference on Robotics and Automation (ICRA)"

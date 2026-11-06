@@ -2,7 +2,7 @@
 
 Shayesteh Hafezi, Alan Papalia — University of Michigan
 
-[![paper](https://img.shields.io/badge/arXiv-coming_soon-b31b1b.svg)](https://arxiv.org)
+[![paper](https://img.shields.io/badge/arXiv-2611.05776-b31b1b.svg)](https://arxiv.org/abs/2611.05776)
 [![weights](https://img.shields.io/badge/weights-Hugging_Face-yellow.svg)](https://huggingface.co/shafezi/closed-loop-sampling)
 [![artifacts](https://img.shields.io/badge/artifacts-Hugging_Face-yellow.svg)](https://huggingface.co/datasets/shafezi/closed-loop-sampling-artifacts)
 
@@ -242,11 +242,12 @@ are modeled.
 ## Citations
 
 ```bibtex
-@inproceedings{hafezi2027closedloop,
-  author = {Hafezi, Shayesteh and Papalia, Alan},
-  title  = {Closed-Loop Adaptive Sampling on a Generative Ocean Model},
-  year   = {2027},
-  note   = {Under review},
+@misc{hafezi2026closedloop,
+  author        = {Hafezi, Shayesteh and Papalia, Alan},
+  title         = {Closed-Loop Adaptive Sampling on a Generative Ocean Model},
+  year          = {2026},
+  howpublished  = {arXiv preprint arXiv:2611.05776},
+  note          = {Under review},
 }
 @misc{zhuang2025ladcast,
   author        = {Zhuang, Yilin and Duraisamy, Karthik},

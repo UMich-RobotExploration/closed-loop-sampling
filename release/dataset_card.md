@@ -14,6 +14,8 @@ tags:
 
 # Closed-Loop Adaptive Sampling on a Generative Ocean Model — artifacts
 
+Paper: [arXiv:2611.05776](https://arxiv.org/abs/2611.05776) (under review).
+
 The evaluation artifacts behind the paper "Closed-Loop Adaptive Sampling on a
 Generative Ocean Model" (Hafezi and Papalia): everything needed to re-run the
 closed loop on the sealed test windows and to regenerate the paper's decoded
@@ -71,11 +73,12 @@ python experiments/run_closed_loop.py --region mab \
 ## Citation
 
 ```bibtex
-@inproceedings{hafezi2027closedloop,
-  author = {Hafezi, Shayesteh and Papalia, Alan},
-  title  = {Closed-Loop Adaptive Sampling on a Generative Ocean Model},
-  year   = {2027},
-  note   = {Under review},
+@misc{hafezi2026closedloop,
+  author        = {Hafezi, Shayesteh and Papalia, Alan},
+  title         = {Closed-Loop Adaptive Sampling on a Generative Ocean Model},
+  year          = {2026},
+  howpublished  = {arXiv preprint arXiv:2611.05776},
+  note          = {Under review},
 }
 @article{wilkin2022doppio_reanalysis,
   author  = {Wilkin, John and Levin, Julia and Moore, Andrew and Arango, Hernan

@@ -11,6 +11,8 @@ library_name: pytorch
 
 # Closed-Loop Adaptive Sampling on a Generative Ocean Model — weights
 
+Paper: [arXiv:2611.05776](https://arxiv.org/abs/2611.05776) (under review).
+
 Regional latent-diffusion ocean forecasters for two ROMS reanalysis domains:
 the Mid-Atlantic Bight (MAB, from the Doppio reanalysis) and the California
 Current System (CCS, from CCSRA31). Each region has a deep compressive
@@ -100,11 +102,12 @@ python experiments/run_closed_loop.py --region mab \
 ## Citation
 
 ```bibtex
-@inproceedings{hafezi2027closedloop,
-  author = {Hafezi, Shayesteh and Papalia, Alan},
-  title  = {Closed-Loop Adaptive Sampling on a Generative Ocean Model},
-  year   = {2027},
-  note   = {Under review},
+@misc{hafezi2026closedloop,
+  author        = {Hafezi, Shayesteh and Papalia, Alan},
+  title         = {Closed-Loop Adaptive Sampling on a Generative Ocean Model},
+  year          = {2026},
+  howpublished  = {arXiv preprint arXiv:2611.05776},
+  note          = {Under review},
 }
 @misc{zhuang2025ladcast,
   author        = {Zhuang, Yilin and Duraisamy, Karthik},
